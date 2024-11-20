@@ -60,7 +60,6 @@ e = power.forward(d)
 # Node 5
 J = multiply_2.forward(0.5 , e)
 
-print("/n")
 print(f"Loss: {J}")
 
 # Compute backward
