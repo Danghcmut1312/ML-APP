@@ -39,32 +39,74 @@ W_loaded, B_loaded = load_weights_and_bias('weight.csv')
 
 print("W và B đã được đọc từ 'weight.csv'.")
 
-# Standardiza input function
-def standardize_input(input_values):
-    mean = [0, 0, 0]  
-    std = [1, 1, 1]   
+# Standardize input function based on custom binning logic
+def custom_standardize_input(N, P, K):
+    # Standardize N
+    if 60 <= N <= 90:
+        N_standardized = 1
+    elif 90 < N <= 120:
+        N_standardized = 2
+    elif 120 < N <= 150:
+        N_standardized = 3
+    elif N > 150:
+        N_standardized = 4
+    else:
+        N_standardized = 0
 
-    # Chuẩn hóa dữ liệu
-    return (input_values - mean) / std
+    # Standardize P
+    if 5 <= P <= 10:
+        P_standardized = 1
+    elif 10 < P <= 20:
+        P_standardized = 2
+    elif 20 < P <= 40:
+        P_standardized = 3
+    elif P > 40:
+        P_standardized = 4
+    else:
+        P_standardized = 0
 
-# Hàm lấy input từ người dùng và thực hiện dự đoán
+    # Standardize K
+    if 50 <= K <= 100:
+        K_standardized = 1
+    elif 100 < K <= 150:
+        K_standardized = 2
+    elif 150 < K <= 200:
+        K_standardized = 3
+    elif K > 200:
+        K_standardized = 4
+    else:
+        K_standardized = 0
+
+    return np.array([N_standardized, P_standardized, K_standardized])
+
+# Function to get input from the user and make a prediction
 def get_input_and_predict():
     N = float(input("Nhập giá trị Nitrogen (N) (mg/kg): "))
     P = float(input("Nhập giá trị Phosphorus (P) (mg/kg): "))
     K = float(input("Nhập giá trị Potassium (K) (mg/kg): "))
     
-    input_values = np.array([N, P, K])
-    input_values = standardize_input(input_values)
+    # Use custom normalization function
+    input_values = custom_standardize_input(N, P, K)
 
     Y_pred = predict_quality(input_values.reshape(1, -1), W_loaded, B_loaded)
     
-    # In kết quả dự đoán
     print("\nXác suất dự đoán cho từng lớp chất lượng:")
     print(Y_pred)
     
-    # Lớp có xác suất cao nhất
+    # The class with the highest probability
     predicted_class = np.argmax(Y_pred)
     print(f"Lớp dự đoán: {predicted_class}")
 
-# Gọi hàm để người dùng nhập dữ liệu và dự đoán
+    if predicted_class == 0:
+        print("Lớp dự đoán: Đất thấp, nghèo")
+    elif predicted_class == 1:
+        print("Lớp dự đoán: Đất trung bình")
+    elif predicted_class == 2:
+        print("Lớp dự đoán: Đất trung bình, giàu")
+    elif predicted_class == 3:
+        print("Lớp dự đoán: Đất rất giàu")
+    else:
+        print("Lớp dự đoán: Không xác định")
+
+# Call the function to allow the user to input data and make a prediction
 get_input_and_predict()

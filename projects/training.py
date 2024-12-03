@@ -37,12 +37,21 @@ m = Y.shape[0]
 Y_one_hot = np.zeros((m, 4))
 Y_one_hot[np.arange(m), Y] = 1
 
-# Combine features into the matrix X
-X = np.column_stack((N, P, K))
+# Function to standardize N, P, K according to the given ranges
+def custom_standardize(N, P, K):
+    # Standardize N
+    N_standardized = np.digitize(N, bins=[60, 90, 120, 150], right=False)
+    # Standardize P
+    P_standardized = np.digitize(P, bins=[5, 10, 20, 40], right=False)
+    # Standardize K
+    K_standardized = np.digitize(K, bins=[50, 100, 150, 200], right=False)
+    return N_standardized, P_standardized, K_standardized
 
-# Standardize the data
-scaler = StandardScaler()
-X = scaler.fit_transform(X)
+# Apply custom standardization
+N_standardized, P_standardized, K_standardized = custom_standardize(N, P, K)
+
+# Combine features into the matrix X
+X = np.column_stack((N_standardized, P_standardized, K_standardized))
 
 # Create weight matrix W
 W = np.random.randn(4, 3)
@@ -121,7 +130,7 @@ def save_weights_and_bias(W, B, filename='weight.csv'):
 # Hyperparameters
 learning_rate = 0.01
 num_iterations = 1000
-batch_size = 32
+batch_size = 30
 
 # Training the model
 W, B = mini_batch_gradient_descent(X, Y_one_hot, W, B, learning_rate, num_iterations, batch_size)
